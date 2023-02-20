@@ -1,66 +1,65 @@
+import 'package:device_apps/device_apps.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'permission_detail_page.dart';
 
+import 'list_apps_page.dart';
 
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  Map<Permission, PermissionStatus> _status = {};
+class _HomePageState extends State<HomePage> {
+  List<Application>? _apps;
+  bool _isLoading = true;
+
+  Future<void> _getApps() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    _apps = await DeviceApps.getInstalledApplications(
+      includeAppIcons: true,
+      includeSystemApps: true,
+      onlyAppsWithLaunchIntent: true,
+    );
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _checkCameraPermissions() async {
+    final appPermissionStatus =
+        await Permission.camera.request().isGranted;
+
+    setState(() {
+      _cameraPermissionStatus = appPermissionStatus;
+    });
+  }
+
+  bool _cameraPermissionStatus = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchPermissions();
-  }
-
-  void _fetchPermissions() async {
-    final permissions = await Permission.values;
-    final statusMap = await permissions.request();
-    setState(() {
-      _status = statusMap;
-    });
+    _getApps();
+    _checkCameraPermissions();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('App Permissions Manager'),
+        title: const Text('Installed apps'),
       ),
-      body: ListView.builder(
-        itemCount: Permission.values.length,
-        itemBuilder: (BuildContext context, int index) {
-          final permission = Permission.values[index];
-          final permissionStatus = _status[permission];
-          return ListTile(
-            title: Text(
-              permission.toString(),
-              style: TextStyle(fontSize: 18),
-            ),
-            subtitle: Text(permissionStatus.toString()),
-            trailing: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PermissionDetailPage(
-                      permission: permission,
-                    ),
-                  ),
-                );
-              },
-              child: Text('Details'),
-            ),
-          );
-        },
-      ),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : AppListPage(apps: _apps!),
     );
   }
 }
