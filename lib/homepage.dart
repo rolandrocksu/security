@@ -1,76 +1,11 @@
-// import 'package:device_apps/device_apps.dart';
-// import 'package:flutter/material.dart';
-// import 'package:permission_handler/permission_handler.dart';
-//
-// import 'list_apps_page.dart';
-//
-// class HomePage extends StatefulWidget {
-//   const HomePage({Key? key}) : super(key: key);
-//
-//   @override
-//   _HomePageState createState() => _HomePageState();
-// }
-//
-// class _HomePageState extends State<HomePage> {
-//   List<Application>? _apps;
-//   bool _isLoading = true;
-//
-//   Future<void> _getApps() async {
-//     setState(() {
-//       _isLoading = true;
-//     });
-//
-//     _apps = await DeviceApps.getInstalledApplications(
-//       includeAppIcons: true,
-//       includeSystemApps: true,
-//       onlyAppsWithLaunchIntent: true,
-//     );
-//
-//     setState(() {
-//       _isLoading = false;
-//     });
-//   }
-//
-//   Future<void> _checkCameraPermissions() async {
-//     final appPermissionStatus =
-//         await Permission.camera.request().isGranted;
-//
-//     setState(() {
-//       _cameraPermissionStatus = appPermissionStatus;
-//     });
-//   }
-//
-//   bool _cameraPermissionStatus = false;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _getApps();
-//     _checkCameraPermissions();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Installed apps'),
-//       ),
-//       body: _isLoading
-//           ? const Center(
-//               child: CircularProgressIndicator(),
-//             )
-//           : AppListPage(apps: _apps!),
-//     );
-//   }
-// }
-
-
-
 import 'package:flutter/material.dart';
 import './permissions_log_page.dart';
 import './permission_control_page.dart';
 import './permission_recommendations_page.dart';
 import './permission_overview_page.dart';
+import './list_apps_page.dart';
+import 'package:device_apps/device_apps.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -84,11 +19,47 @@ class _HomePageState extends State<HomePage>
   late AnimationController _controller;
   late Animation<Offset> _offsetAnimation;
 
+  List<Application>? _apps;
+//   bool _ismissions();
+  bool _isLoading = true;
+
+  Future<void> _getApps() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    _apps = await DeviceApps.getInstalledApplications(
+      includeAppIcons: true,
+      includeSystemApps: true,
+      onlyAppsWithLaunchIntent: true,
+    );
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _checkCameraPermissions() async {
+    final appPermissionStatus =
+        await Permission.camera.request().isGranted;
+
+    setState(() {
+      _cameraPermissionStatus = appPermissionStatus;
+    });
+  }
+
+  bool _cameraPermissionStatus = false;
+
+
   @override
   void initState() {
     super.initState();
+
+    _getApps();
+    _checkCameraPermissions();
+
     _controller =
-        AnimationController(vsync: this, duration: Duration(seconds: 2));
+        AnimationController(vsync: this, duration: Duration(seconds: 10));
     _offsetAnimation = Tween<Offset>(
       begin: Offset.zero,
       end: const Offset(0.0, 0.08),
@@ -147,6 +118,23 @@ class _HomePageState extends State<HomePage>
                           builder: (context) => PermissionsOverview(),
                         ),
                       ),
+                    ),
+                    const SizedBox(height: 16.0),
+                    _buildButton(
+                      context,
+                      'List all apps',
+                      Icons.visibility,
+                      () async {
+                        if (_apps == null) {
+                          return;
+                        }
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AppListPage(apps: _apps!,),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 16.0),
                     _buildButton(
@@ -230,7 +218,7 @@ class _HomePageState extends State<HomePage>
       child: Container(
         height: 80.0,
         decoration: BoxDecoration(
-          color: Colors.yellow[700],
+          color: Colors.green[700],
           borderRadius: BorderRadius.circular(10.0),
           boxShadow: const [
             BoxShadow(
@@ -261,28 +249,6 @@ class _HomePageState extends State<HomePage>
                 ),
               ],
             ),
-            // Positioned(
-            //   right: 8.0,
-            //   top: 8.0,
-            //   child: SizedBox(
-            //     height: 24.0,
-            //     width: 24.0,
-            //     child: RotationTransition(
-            //       turns: AlwaysStoppedAnimation(45 / 360),
-            //       child: DecoratedBox(
-            //         decoration: const BoxDecoration(
-            //           color: Colors.red,
-            //           shape: BoxShape.circle,
-            //         ),
-            //         child: const Icon(
-            //           Icons.warning,
-            //           color: Colors.white,
-            //           size: 16.0,
-            //         ),
-            //       ),
-            //     ),
-            //   ),
-            // ),
           ],
         ),
       ),
