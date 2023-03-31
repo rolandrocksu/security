@@ -95,3 +95,6 @@ flutter:
 
 assets:
   - assets/
+  - assets/images/
+  - images/
+  - images/shield.png
