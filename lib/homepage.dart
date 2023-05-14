@@ -6,6 +6,8 @@ import './permission_overview_page.dart';
 import './list_apps_page.dart';
 import 'package:device_apps/device_apps.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:usage_stats/usage_stats.dart';
+import './about_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -50,26 +52,48 @@ class _HomePageState extends State<HomePage>
 
   bool _cameraPermissionStatus = false;
 
+  Future<void> requestPermission() async {
+    final _usagePermission = await UsageStats.grantUsagePermission();
+  }
 
   @override
-  void initState() {
-    super.initState();
+void initState() {
+  super.initState();
 
-    _getApps();
-    _checkCameraPermissions();
+  _getApps();
+  _checkCameraPermissions();
 
-    _controller =
-        AnimationController(vsync: this, duration: Duration(seconds: 10));
-    _offsetAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(0.0, 0.08),
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOut,
-    ));
+  _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 10),
+  );
+  _offsetAnimation = Tween<Offset>(
+    begin: Offset.zero,
+    end: const Offset(0.0, 0.08),
+  ).animate(CurvedAnimation(
+    parent: _controller,
+    curve: Curves.easeOut,
+  ));
+  _controller.repeat(reverse: true);
 
-    _controller.repeat(reverse: true);
-  }
+  // Wait for app to finish initializing
+  WidgetsBinding.instance!.addPostFrameCallback((_) async {
+    // Check if usage permission is granted
+    bool? isUsagePermissionGranted = await UsageStats.checkUsagePermission();
+
+    // Request usage permission if not granted
+    if (isUsagePermissionGranted != null && !isUsagePermissionGranted) {
+      await requestPermission();
+    }
+  });
+}
+
+// Future<void> requestPermission() async {
+//   final usagePermission = await UsageStats.grantUsagePermission();
+//   if (usagePermission != UsageStats.Permission.allowed) {
+//     // Permission denied, handle the error
+//   }
+// }
 
   @override
   void dispose() {
@@ -91,7 +115,7 @@ class _HomePageState extends State<HomePage>
             children: <Widget>[
               const SizedBox(height: 32.0),
               Image.asset(
-                'images/shield.png',
+                'assets/images/shield.png',
                 height: 120.0,
                 width: 120.0,
               ),
@@ -123,7 +147,7 @@ class _HomePageState extends State<HomePage>
                     _buildButton(
                       context,
                       'List all apps',
-                      Icons.visibility,
+                      Icons.list,
                       () async {
                         if (_apps == null) {
                           return;
@@ -186,20 +210,26 @@ class _HomePageState extends State<HomePage>
                 children: [
                   _buildButton(
                     context,
-                    '',
-                    Icons.add,
-                    () {
-                      // Implement action here
-                    },
+                    'Help',
+                    Icons.help,
+                    () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AboutScreen(),
+                        ),
+                    ),
                   ),
-                  const SizedBox(width: 16.0),
+                  const SizedBox(width: 18.0),
                   _buildButton(
                     context,
-                    '',
-                    Icons.remove,
-                    () {
-                      // Implement action here
-                    },
+                    'About',
+                    Icons.biotech,
+                    () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AboutScreen(),
+                        ),
+                    ),
                   ),
                 ],
               ),

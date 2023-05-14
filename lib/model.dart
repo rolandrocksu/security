@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class PermissionLog {
   late final int id;
   late final String permission;
@@ -29,4 +31,20 @@ class PermissionLog {
       'user': user,
     };
   }
+}
+
+
+class App {
+  final String name;
+  final String description;
+  final String image;
+
+  App({required this.name, required this.description, required this.image});
+}
+
+class RecommendedApps {
+  final String title;
+  final List<App> apps;
+
+  RecommendedApps({required this.title, required this.apps});
 }

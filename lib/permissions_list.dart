@@ -37,6 +37,26 @@ class _PermissionListState extends State<PermissionList> {
     });
   }
 
+  Widget _getPermissionIcon(Permission permission) {
+  if (permission == Permission.camera) {
+    return Icon(Icons.camera_alt);
+  } else if (permission == Permission.calendar) {
+    return Icon(Icons.event);
+  } else if (permission == Permission.contacts) {
+    return Icon(Icons.contacts);
+  } else if (permission == Permission.location || permission is PermissionWithService) {
+    return Icon(Icons.location_on);
+  } else if (permission == Permission.microphone) {
+    return Icon(Icons.mic);
+  } else if (permission == Permission.photos) {
+    return Icon(Icons.photo);
+  } else if (permission == Permission.storage) {
+    return Icon(Icons.sd_storage);
+  } else {
+    return const Icon(Icons.help, color: Colors.grey);
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,6 +69,7 @@ class _PermissionListState extends State<PermissionList> {
           final permission = _permissions[index];
           return ListTile(
             title: Text(describeEnum(permission)),
+            leading: _getPermissionIcon(permission),
             subtitle: Text(permission.toString()),
             onTap: () {
               _openPermissionDetailPage(permission);
