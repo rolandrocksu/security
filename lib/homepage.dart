@@ -8,6 +8,7 @@ import 'package:device_apps/device_apps.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:usage_stats/usage_stats.dart';
 import './about_screen.dart';
+import './help_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -215,7 +216,7 @@ void initState() {
                     () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AboutScreen(),
+                          builder: (context) => HelpScreen(),
                         ),
                     ),
                   ),
@@ -246,7 +247,7 @@ void initState() {
     return InkWell(
       onTap: onPressed as void Function()?,
       child: Container(
-        height: 80.0,
+        height: 70.0,
         decoration: BoxDecoration(
           color: Colors.green[700],
           borderRadius: BorderRadius.circular(10.0),
@@ -268,7 +269,7 @@ void initState() {
                   size: 32.0,
                   color: Colors.black,
                 ),
-                const SizedBox(width: 16.0),
+                const SizedBox(width: 14.0),
                 Text(
                   label,
                   style: const TextStyle(
